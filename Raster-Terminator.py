@@ -64,25 +64,30 @@ def Operations(width,height,x,y):
         print('[-] 出现错误，请排查')
     return output
 
-def ImageWrite(x,y,imagename):
-    x,y = int(x),int(y)
+def ImageWrite(x, y, imagename):
+    x, y = int(x), int(y)
     img = np.array(Image.open(imagename))
+    
+    if img.ndim == 2:  # 处理灰度图
+        img = np.expand_dims(img, axis=2)  # 将二维图像扩展为三维数组以统一处理
+    
     if x != 0:
         for i in range(x):
             print('[+] 正在输出第 {} 张图片'.format(i+1))
             z = np.zeros_like(img)
             z[:, i::x, :] = img[:, i::x, :]
-            imgnew = Image.fromarray(z)
-            imgnew.save('./output/{}-{}.png'.format(x,i+1))
+            imgnew = Image.fromarray(z.squeeze())  # 如果是灰度图，则去掉多余维度
+            imgnew.save('./output/{}-{}.png'.format(x, i+1))
         print('[+] 文件写入完毕，请查收！')
     else:
         for i in range(y):
             print('[+] 正在输出第 {} 张图片'.format(i+1))
             z = np.zeros_like(img)
             z[i::y, :, :] = img[i::y, :, :]
-            imgnew = Image.fromarray(z)
-            imgnew.save('./output/{}-{}.png'.format(y,i+1))
+            imgnew = Image.fromarray(z.squeeze())  # 如果是灰度图，则去掉多余维度
+            imgnew.save('./output/{}-{}.png'.format(y, i+1))
         print('[+] 文件写入完毕，请查收！')
+
 
 def ImageOut(x,y,imagename):
     x,y = int(x),int(y)
