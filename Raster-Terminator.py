@@ -66,17 +66,23 @@ def Operations(width,height,x,y):
 
 def ImageWrite(x, y, imagename):
     x, y = int(x), int(y)
-    img = np.array(Image.open(imagename))
     
-    if img.ndim == 2:  # 处理灰度图
-        img = np.expand_dims(img, axis=2)  # 将二维图像扩展为三维数组以统一处理
+    # 打开图像并判断是否为灰度图
+    img_pil = Image.open(imagename)
+    is_gray = img_pil.mode == 'L'  # 判断是否为灰度图
+    img = np.array(img_pil)
+    
+    # 如果是灰度图 (2D)，扩展为三维数组
+    if img.ndim == 2:
+        img = np.expand_dims(img, axis=2)
     
     if x != 0:
         for i in range(x):
             print('[+] 正在输出第 {} 张图片'.format(i+1))
             z = np.zeros_like(img)
             z[:, i::x, :] = img[:, i::x, :]
-            imgnew = Image.fromarray(z.squeeze())  # 如果是灰度图，则去掉多余维度
+            # 根据 is_gray 判断是否使用 squeeze 去掉多余维度
+            imgnew = Image.fromarray(z.squeeze() if is_gray else z)
             imgnew.save('./output/{}-{}.png'.format(x, i+1))
         print('[+] 文件写入完毕，请查收！')
     else:
@@ -84,10 +90,10 @@ def ImageWrite(x, y, imagename):
             print('[+] 正在输出第 {} 张图片'.format(i+1))
             z = np.zeros_like(img)
             z[i::y, :, :] = img[i::y, :, :]
-            imgnew = Image.fromarray(z.squeeze())  # 如果是灰度图，则去掉多余维度
+            # 根据 is_gray 判断是否使用 squeeze 去掉多余维度
+            imgnew = Image.fromarray(z.squeeze() if is_gray else z)
             imgnew.save('./output/{}-{}.png'.format(y, i+1))
         print('[+] 文件写入完毕，请查收！')
-
 
 def ImageOut(x,y,imagename):
     x,y = int(x),int(y)
